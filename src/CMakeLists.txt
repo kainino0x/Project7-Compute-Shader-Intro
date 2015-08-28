@@ -1,6 +1,9 @@
 set(SOURCE_FILES
+    "cudaMat4.hpp"
     "glslUtility.hpp"
     "glslUtility.cpp"
+    "utilityCore.hpp"
+    "utilityCore.cpp"
     "kernel.h"
     "kernel.cu"
     )

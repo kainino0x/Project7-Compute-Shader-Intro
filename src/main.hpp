@@ -1,30 +1,63 @@
 #pragma once
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
+#include <sstream>
+#include <fstream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cuda_runtime.h>
+#include <cuda_gl_interop.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include "utilityCore.hpp"
 #include "glslUtility.hpp"
 #include "kernel.h"
 
 //====================================
 // GL Stuff
 //====================================
-GLuint             m_pbo = (GLuint) NULL;
-GLFWwindow*    m_window;
-std::string        m_yourName;
-unsigned int       m_width;
-unsigned int       m_height;
-int                m_major;
-int                m_minor;
-GLuint             m_positionLocation = 0;
-GLuint             m_texCoordsLocation = 1;
-GLuint             m_image;
+
+GLuint positionLocation = 0;
+GLuint texcoordsLocation = 1;
+const char *attributeLocations[] = { "Position", "Texcoords" };
+GLuint pbo = (GLuint)NULL;
+GLuint planeVBO = (GLuint)NULL;
+GLuint planeTBO = (GLuint)NULL;
+GLuint planeIBO = (GLuint)NULL;
+GLuint planetVBO = (GLuint)NULL;
+GLuint planetIBO = (GLuint)NULL;
+GLuint displayImage;
+GLuint program[2];
+
+const unsigned int HEIGHT_FIELD = 0;
+const unsigned int PASS_THROUGH = 1;
+
+const int field_width  = 800;
+const int field_height = 800;
+
+float fovy = 60.0f;
+float zNear = 0.10;
+float zFar = 5.0;
+
+glm::mat4 projection;
+glm::mat4 view;
+glm::vec3 cameraPosition(1.75, 1.75, 1.35);
+
+//====================================
+// CUDA Stuff
+//====================================
+
+int width = 1000;
+int height = 1000;
 
 //====================================
 // Main
 //====================================
+
+const char *projectName;
+
 int main(int argc, char* argv[]);
 
 //====================================
@@ -43,7 +76,7 @@ void initPBO(GLuint *pbo);
 void initCUDA();
 void initTextures();
 void initVAO();
-GLuint initShader();
+void initShaders(GLuint *program);
 
 //====================================
 // Cleanup Stuff

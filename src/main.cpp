@@ -1,17 +1,26 @@
-#include <cstdio>
-#include <sstream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <cuda_runtime_api.h>
-#include <cuda_gl_interop.h>
+/**
+ * @file      main.cpp
+ * @brief     Example N-body simulation for CIS 565
+ * @authors   Liam Boone, Kai Ninomiya
+ * @date      2013-2015
+ * @copyright University of Pennsylvania
+ */
+
 #include "main.hpp"
+
+// ================
+// Configuration
+// ================
+
+#define N_FOR_VIS 5000
+#define DT 0.2
+#define VISUALIZE 1
 
 /**
  * C main function.
  */
 int main(int argc, char* argv[]) {
-    // TODO: Change this line to use your name!
-    m_yourName = "TODO: YOUR NAME HERE";
+    projectName = "565 CUDA Intro: N-Body";
 
     if (init(argc, argv)) {
         mainLoop();
@@ -20,27 +29,35 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+//-------------------------------
+//---------RUNTIME STUFF---------
+//-------------------------------
+
+std::string deviceName;
+GLFWwindow *window;
+
 /**
  * Initialization of CUDA and GLFW.
  */
 bool init(int argc, char **argv) {
     // Set window title to "Student Name: [SM 2.0] GPU Name"
-    std::string deviceName;
     cudaDeviceProp deviceProp;
     int gpuDevice = 0;
     int device_count = 0;
     cudaGetDeviceCount(&device_count);
     if (gpuDevice > device_count) {
-        std::cout << "Error: GPU device number is greater than the number of devices!" <<
-                  "Perhaps a CUDA-capable GPU is not installed?" << std::endl;
+        std::cout
+            << "Error: GPU device number is greater than the number of devices!"
+            << " Perhaps a CUDA-capable GPU is not installed?"
+            << std::endl;
         return false;
     }
     cudaGetDeviceProperties(&deviceProp, gpuDevice);
-    m_major = deviceProp.major;
-    m_minor = deviceProp.minor;
+    int major = deviceProp.major;
+    int minor = deviceProp.minor;
 
     std::ostringstream ss;
-    ss << m_yourName << ": [SM " << m_major << "." << m_minor << "] " << deviceProp.name;
+    ss << projectName << " [SM " << major << "." << minor << " " << deviceProp.name << "]";
     deviceName = ss.str();
 
     // Window setup stuff
@@ -49,15 +66,15 @@ bool init(int argc, char **argv) {
     if (!glfwInit()) {
         return false;
     }
-    m_width = 800;
-    m_height = 800;
-    m_window = glfwCreateWindow(m_width, m_height, deviceName.c_str(), NULL, NULL);
-    if (!m_window) {
+    width = 800;
+    height = 800;
+    window = glfwCreateWindow(width, height, deviceName.c_str(), NULL, NULL);
+    if (!window) {
         glfwTerminate();
         return false;
     }
-    glfwMakeContextCurrent(m_window);
-    glfwSetKeyCallback(m_window, keyCallback);
+    glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, keyCallback);
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
@@ -68,12 +85,19 @@ bool init(int argc, char **argv) {
     initVAO();
     initTextures();
     initCUDA();
-    initPBO(&m_pbo);
+    initPBO(&pbo);
 
-    GLuint passthroughProgram;
-    passthroughProgram = initShader();
-    glUseProgram(passthroughProgram);
+    projection = glm::perspective(fovy, float(width) / float(height), zNear, zFar);
+    view = glm::lookAt(cameraPosition, glm::vec3(0), glm::vec3(0, 0, 1));
+
+    projection = projection * view;
+
+    initShaders(program);
+
+    glUseProgram(program[HEIGHT_FIELD]);
     glActiveTexture(GL_TEXTURE0);
+
+    glEnable(GL_DEPTH_TEST);
 
     return true;
 }
@@ -81,7 +105,7 @@ bool init(int argc, char **argv) {
 void initPBO(GLuint *pbo) {
     if (pbo) {
         // set up vertex data parameter
-        int num_texels = m_width * m_height;
+        int num_texels = width * height;
         int num_values = num_texels * 4;
         size_t size_tex_data = sizeof(GLubyte) * num_values;
 
@@ -96,37 +120,85 @@ void initPBO(GLuint *pbo) {
 }
 
 void initVAO() {
-    GLfloat vertices[] = {
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        1.0f,  1.0f,
-        -1.0f,  1.0f,
-    };
+    const int fw_1 = field_width-1;
+    const int fh_1 = field_height-1;
 
-    GLfloat texCoords[] = {
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f
-    };
+    int num_verts = field_width*field_height;
+    int num_faces = fw_1*fh_1;
 
-    GLushort indices[] = { 0, 1, 3, 3, 1, 2 };
+    GLfloat *vertices  = new GLfloat[2*num_verts];
+    GLfloat *texcoords = new GLfloat[2*num_verts]; 
+    GLfloat *bodies    = new GLfloat[4*(N_FOR_VIS+1)];
+    GLuint *indices    = new GLuint[6*num_faces];
+    GLuint *bindices   = new GLuint[N_FOR_VIS+1];
 
-    GLuint vertexBufferObjID[3];
-    glGenBuffers(3, vertexBufferObjID);
+    glm::vec4 ul(-1.0,-1.0,1.0,1.0);
+    glm::vec4 lr(1.0,1.0,0.0,0.0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)m_positionLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(m_positionLocation);
+    for(int i = 0; i < field_width; ++i)
+    {
+        for(int j = 0; j < field_height; ++j)
+        {
+            float alpha = float(i) / float(fw_1);
+            float beta = float(j) / float(fh_1);
+            vertices[(j*field_width + i)*2  ] = alpha*lr.x + (1-alpha)*ul.x;
+            vertices[(j*field_width + i)*2+1] = beta*lr.y + (1-beta)*ul.y;
+            texcoords[(j*field_width + i)*2  ] = alpha*lr.z + (1-alpha)*ul.z;
+            texcoords[(j*field_width + i)*2+1] = beta*lr.w + (1-beta)*ul.w;
+        }
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)m_texCoordsLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(m_texCoordsLocation);
+    for(int i = 0; i < fw_1; ++i)
+    {
+        for(int j = 0; j < fh_1; ++j)
+        {
+            indices[6*(i+(j*fw_1))    ] = field_width*j + i;
+            indices[6*(i+(j*fw_1)) + 1] = field_width*j + i + 1;
+            indices[6*(i+(j*fw_1)) + 2] = field_width*(j+1) + i;
+            indices[6*(i+(j*fw_1)) + 3] = field_width*(j+1) + i;
+            indices[6*(i+(j*fw_1)) + 4] = field_width*(j+1) + i + 1;
+            indices[6*(i+(j*fw_1)) + 5] = field_width*j + i + 1;
+        }
+    }
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexBufferObjID[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    for(int i = 0; i < N_FOR_VIS+1; i++)
+    {
+        bodies[4*i+0] = 0.0f;
+        bodies[4*i+1] = 0.0f;
+        bodies[4*i+2] = 0.0f;
+        bodies[4*i+3] = 1.0f;
+        bindices[i] = i;
+    }
+
+    glGenBuffers(1, &planeVBO);
+    glGenBuffers(1, &planeTBO);
+    glGenBuffers(1, &planeIBO);
+    glGenBuffers(1, &planetVBO);
+    glGenBuffers(1, &planetIBO);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, 2*num_verts*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, planeTBO);
+    glBufferData(GL_ARRAY_BUFFER, 2*num_verts*sizeof(GLfloat), texcoords, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planeIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*num_faces*sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, planetVBO);
+    glBufferData(GL_ARRAY_BUFFER, 4*(N_FOR_VIS+1)*sizeof(GLfloat), bodies, GL_DYNAMIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planetIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (N_FOR_VIS+1)*sizeof(GLuint), bindices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    delete[] vertices;
+    delete[] texcoords;
+    delete[] bodies;
+    delete[] indices;
+    delete[] bindices;
 }
 
 void initCUDA() {
@@ -136,26 +208,57 @@ void initCUDA() {
 
     // Clean up on program exit
     atexit(cleanupCUDA);
+
+    // Initialize N-body simulation
+    Nbody::init(N_FOR_VIS);
 }
 
 void initTextures() {
-    glGenTextures(1, &m_image);
-    glBindTexture(GL_TEXTURE_2D, m_image);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_BGRA,
-                 GL_UNSIGNED_BYTE, NULL);
+    glGenTextures(1,&displayImage);
+    glBindTexture(GL_TEXTURE_2D, displayImage);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, field_width, field_height,
+            0, GL_RGBA, GL_FLOAT, NULL);
 }
 
-GLuint initShader() {
-    const char *attributeLocations[] = { "Position", "Tex" };
-    GLuint program = glslUtility::createDefaultProgram(attributeLocations, 2);
+void initShaders(GLuint * program)
+{
     GLint location;
-    glUseProgram(program);
-    if ((location = glGetUniformLocation(program, "u_image")) != -1) {
+    program[0] = glslUtility::createProgram(
+            "shaders/heightVS.glsl",
+            "shaders/heightFS.glsl", attributeLocations, 2);
+    glUseProgram(program[0]);
+    
+    if ((location = glGetUniformLocation(program[0], "u_image")) != -1)
+    {
         glUniform1i(location, 0);
     }
-    return program;
+    if ((location = glGetUniformLocation(program[0], "u_projMatrix")) != -1)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, &projection[0][0]);
+    }
+    if ((location = glGetUniformLocation(program[0], "u_height")) != -1)
+    {
+        glUniform1i(location, 0);
+    }
+    
+    program[1] = glslUtility::createProgram(
+            "shaders/planetVS.glsl",
+            "shaders/planetGS.glsl",
+            "shaders/planetFS.glsl", attributeLocations, 1);
+    glUseProgram(program[1]);
+    
+    if ((location = glGetUniformLocation(program[1], "u_projMatrix")) != -1)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, &projection[0][0]);
+    }
+    if ((location = glGetUniformLocation(program[1], "u_cameraPos")) != -1)
+    {
+        glUniform3fv(location, 1, &cameraPosition[0]);
+    }
 }
 
 //====================================
@@ -163,33 +266,91 @@ GLuint initShader() {
 //====================================
 void runCUDA() {
     // Map OpenGL buffer object for writing from CUDA on a single GPU
-    // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not use this buffer
-    uchar4 *dptr = NULL;
-    cudaGLMapBufferObject((void**)&dptr, m_pbo);
+    // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not
+    // use this buffer
 
-    // Execute the kernel
-    kernelVersionVis(dptr, m_width, m_height, m_major, m_minor);
+    float4 *dptr = NULL;
+    float *dptrvert = NULL;
+    cudaGLMapBufferObject((void**)&dptr, pbo);
+    cudaGLMapBufferObject((void**)&dptrvert, planetVBO);
 
-    // Unmap buffer object
-    cudaGLUnmapBufferObject(m_pbo);
+    // execute the kernel
+    Nbody::step(DT);
+#if VISUALIZE
+    Nbody::updatePBO(dptr, field_width, field_height);
+    Nbody::updateVBO(dptrvert, field_width, field_height);
+#endif
+    // unmap buffer object
+    cudaGLUnmapBufferObject(planetVBO);
+    cudaGLUnmapBufferObject(pbo);
 }
 
 void mainLoop() {
-    while (!glfwWindowShouldClose(m_window)) {
+    while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         runCUDA();
 
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_pbo);
-        glBindTexture(GL_TEXTURE_2D, m_image);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA,
+        std::ostringstream ss;
+        ss << "[";
+        ss.width(3);
+        ss << " fps] " << deviceName;
+        glfwSetWindowTitle(window, ss.str().c_str());
+
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
+        glBindTexture(GL_TEXTURE_2D, displayImage);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, field_width, field_height,
+                GL_RGBA, GL_FLOAT, NULL);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#if VISUALIZE
+        // VAO, shader program, and texture already bound
+
+        glUseProgram(program[HEIGHT_FIELD]);
+
+        glEnableVertexAttribArray(positionLocation);
+        glEnableVertexAttribArray(texcoordsLocation);
+
+        glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+        glVertexAttribPointer((GLuint)positionLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, planeTBO);
+        glVertexAttribPointer((GLuint)texcoordsLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planeIBO);
+
+        glDrawElements(GL_TRIANGLES, 6 * field_width * field_height,  GL_UNSIGNED_INT, 0);
+
+        glDisableVertexAttribArray(positionLocation);
+        glDisableVertexAttribArray(texcoordsLocation);
+
+        glUseProgram(program[PASS_THROUGH]);
+
+        glEnableVertexAttribArray(positionLocation);
+
+        glBindBuffer(GL_ARRAY_BUFFER, planetVBO);
+        glVertexAttribPointer((GLuint)positionLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planetIBO);
+
+        glPointSize(4.0f);
+        glDrawElements(GL_POINTS, N_FOR_VIS + 1, GL_UNSIGNED_INT, 0);
+
+        glPointSize(1.0f);
+
+        glDisableVertexAttribArray(positionLocation);
+#endif
+
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
+        glBindTexture(GL_TEXTURE_2D, displayImage);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA,
                         GL_UNSIGNED_BYTE, NULL);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // VAO, shader program, and texture already bound
         glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_SHORT, 0);
-        glfwSwapBuffers(m_window);
+        glfwSwapBuffers(window);
     }
-    glfwDestroyWindow(m_window);
+    glfwDestroyWindow(window);
     glfwTerminate();
 }
 
@@ -209,24 +370,22 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 //====================================
 
 void cleanupCUDA() {
-    if (m_pbo) {
-        deletePBO(&m_pbo);
+    if (pbo) {
+        deletePBO(&pbo);
     }
-    if (m_image) {
-        deleteTexture(&m_image);
+    if (displayImage) {
+        deleteTexture(&displayImage);
     }
 }
 
 void deletePBO(GLuint *pbo) {
-    if (pbo) {
-        // unregister this buffer object with CUDA
-        cudaGLUnregisterBufferObject(*pbo);
+    // unregister this buffer object with CUDA
+    cudaGLUnregisterBufferObject(*pbo);
 
-        glBindBuffer(GL_ARRAY_BUFFER, *pbo);
-        glDeleteBuffers(1, pbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *pbo);
+    glDeleteBuffers(1, pbo);
 
-        *pbo = (GLuint)NULL;
-    }
+    *pbo = (GLuint)NULL;
 }
 
 void deleteTexture(GLuint *tex) {
