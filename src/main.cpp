@@ -281,13 +281,28 @@ void runCUDA() {
 }
 
 void mainLoop() {
+    float fps = 0;
+    double timebase = 0;
+    int frame = 0;
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        frame++;
+        double time = glfwGetTime();
+
+        if (time - timebase > 1.0) {
+            fps = frame / (time - timebase);
+            timebase = time;
+            frame = 0;
+        }
+
         runCUDA();
 
         std::ostringstream ss;
         ss << "[";
-        ss.width(3);
+        ss.precision(1);
+        ss << std::fixed << fps;
         ss << " fps] " << deviceName;
         glfwSetWindowTitle(window, ss.str().c_str());
 

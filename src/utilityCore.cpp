@@ -63,7 +63,7 @@ bool utilityCore::epsilonCheck(float a, float b) {
     }
 }
 
-void utilityCore::printCudaMat4(cudaMat4 m) {
+void utilityCore::printCudaMat4(const cudaMat4 &m) {
     utilityCore::printVec4(m.x);
     utilityCore::printVec4(m.y);
     utilityCore::printVec4(m.z);
@@ -79,17 +79,17 @@ glm::mat4 utilityCore::buildTransformationMatrix(glm::vec3 translation, glm::vec
     return translationMat * rotationMat * scaleMat;
 }
 
-cudaMat4 utilityCore::glmMat4ToCudaMat4(glm::mat4 a) {
+cudaMat4 utilityCore::glmMat4ToCudaMat4(const glm::mat4 &a) {
     cudaMat4 m;
-    a = glm::transpose(a);
-    m.x = a[0];
-    m.y = a[1];
-    m.z = a[2];
-    m.w = a[3];
+    glm::mat4 aTr = glm::transpose(a);
+    m.x = aTr[0];
+    m.y = aTr[1];
+    m.z = aTr[2];
+    m.w = aTr[3];
     return m;
 }
 
-glm::mat4 utilityCore::cudaMat4ToGlmMat4(cudaMat4 a) {
+glm::mat4 utilityCore::cudaMat4ToGlmMat4(const cudaMat4 &a) {
     glm::mat4 m;
     m[0] = a.x;
     m[1] = a.y;
@@ -143,17 +143,17 @@ std::istream& utilityCore::safeGetline(std::istream& is, std::string& t) {
 //-------GLM Printers----------
 //-----------------------------
 
-void utilityCore::printMat4(glm::mat4 m) {
+void utilityCore::printMat4(const glm::mat4 &m) {
     std::cout << m[0][0] << " " << m[1][0] << " " << m[2][0] << " " << m[3][0] << std::endl;
     std::cout << m[0][1] << " " << m[1][1] << " " << m[2][1] << " " << m[3][1] << std::endl;
     std::cout << m[0][2] << " " << m[1][2] << " " << m[2][2] << " " << m[3][2] << std::endl;
     std::cout << m[0][3] << " " << m[1][3] << " " << m[2][3] << " " << m[3][3] << std::endl;
 }
 
-void utilityCore::printVec4(glm::vec4 m) {
+void utilityCore::printVec4(const glm::vec4 &m) {
     std::cout << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << std::endl;
 }
 
-void utilityCore::printVec3(glm::vec3 m) {
+void utilityCore::printVec3(const glm::vec3 &m) {
     std::cout << m[0] << " " << m[1] << " " << m[2] << std::endl;
 }
