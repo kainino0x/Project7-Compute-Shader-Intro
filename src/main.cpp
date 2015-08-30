@@ -229,7 +229,7 @@ void initShaders(GLuint * program) {
     GLint location;
     program[0] = glslUtility::createProgram(
                      "shaders/height.vert.glsl",
-                     "shaders/height.frag.glsl", attributeLocations, 2);
+                     "shaders/height.frag.glsl", attributeLocations, 1);
     glUseProgram(program[0]);
 
     if ((location = glGetUniformLocation(program[0], "u_image")) != -1) {
