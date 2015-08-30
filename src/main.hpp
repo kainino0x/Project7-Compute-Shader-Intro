@@ -21,7 +21,7 @@
 
 GLuint positionLocation = 0;
 GLuint texcoordsLocation = 1;
-const char *attributeLocations[] = { "Position", "Texcoords" };
+const char *attributeLocations[] = { "Position" };
 GLuint pbo = (GLuint)NULL;
 GLuint planeVBO = (GLuint)NULL;
 GLuint planeTBO = (GLuint)NULL;
