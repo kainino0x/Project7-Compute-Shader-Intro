@@ -68,6 +68,12 @@ bool init(int argc, char **argv) {
     }
     width = 800;
     height = 800;
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     window = glfwCreateWindow(width, height, deviceName.c_str(), NULL, NULL);
     if (!window) {
         glfwTerminate();
@@ -222,8 +228,8 @@ void initTextures() {
 void initShaders(GLuint * program) {
     GLint location;
     program[0] = glslUtility::createProgram(
-                     "shaders/heightVS.glsl",
-                     "shaders/heightFS.glsl", attributeLocations, 2);
+                     "shaders/height.vert.glsl",
+                     "shaders/height.frag.glsl", attributeLocations, 2);
     glUseProgram(program[0]);
 
     if ((location = glGetUniformLocation(program[0], "u_image")) != -1) {
@@ -237,9 +243,9 @@ void initShaders(GLuint * program) {
     }
 
     program[1] = glslUtility::createProgram(
-                     "shaders/planetVS.glsl",
-                     "shaders/planetGS.glsl",
-                     "shaders/planetFS.glsl", attributeLocations, 1);
+                     "shaders/planet.vert.glsl",
+                     "shaders/planet.geom.glsl",
+                     "shaders/planet.frag.glsl", attributeLocations, 1);
     glUseProgram(program[1]);
 
     if ((location = glGetUniformLocation(program[1], "u_projMatrix")) != -1) {

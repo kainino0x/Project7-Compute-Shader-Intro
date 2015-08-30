@@ -18,9 +18,9 @@ using std::ios;
 
 namespace glslUtility {
 typedef struct {
-    GLuint vertex;
-    GLuint fragment;
-    GLuint geometry;
+    GLint vertex;
+    GLint fragment;
+    GLint geometry;
 } shaders_t;
 
 char* loadFile(const char *fname, GLint &fSize) {
@@ -77,12 +77,14 @@ void printLinkInfoLog(GLint prog) {
 }
 
 shaders_t loadShaders(const char * vert_path, const char * geom_path, const char * frag_path) {
-    GLuint f, g = -1, v;
+    GLint f, g = -1, v;
 
     char *vs, *gs, *fs;
 
     v = glCreateShader(GL_VERTEX_SHADER);
-    if (geom_path) g = glCreateShader(GL_GEOMETRY_SHADER);
+    if (geom_path) {
+        g = glCreateShader(GL_GEOMETRY_SHADER);
+    }
     f = glCreateShader(GL_FRAGMENT_SHADER);
 
     // load shaders & get length of each
@@ -90,7 +92,9 @@ shaders_t loadShaders(const char * vert_path, const char * geom_path, const char
     GLint glen;
     GLint flen;
     vs = loadFile(vert_path, vlen);
-    if (geom_path) gs = loadFile(geom_path, glen);
+    if (geom_path) {
+        gs = loadFile(geom_path, glen);
+    }
     fs = loadFile(frag_path, flen);
 
     const char * vv = vs;
@@ -98,7 +102,9 @@ shaders_t loadShaders(const char * vert_path, const char * geom_path, const char
     const char * ff = fs;
 
     glShaderSource(v, 1, &vv, &vlen);
-    if (geom_path) glShaderSource(g, 1, &gg, &glen);
+    if (geom_path) {
+        glShaderSource(g, 1, &gg, &glen);
+    }
     glShaderSource(f, 1, &ff, &flen);
 
     GLint compiled;
@@ -132,7 +138,9 @@ shaders_t loadShaders(const char * vert_path, const char * geom_path, const char
     out.fragment = f;
 
     delete [] vs; // dont forget to free allocated memory, or else really bad things start happening
-    if (geom_path) delete[] gs;
+    if (geom_path) {
+        delete[] gs;
+    }
     delete [] fs; // we allocated this in the loadFile function...
 
     return out;
@@ -140,7 +148,9 @@ shaders_t loadShaders(const char * vert_path, const char * geom_path, const char
 
 void attachAndLinkProgram(GLuint program, shaders_t shaders) {
     glAttachShader(program, shaders.vertex);
-    if (shaders.geometry >= 0) glAttachShader(program, shaders.geometry);
+    if (shaders.geometry >= 0) {
+        glAttachShader(program, shaders.geometry);
+    }
     glAttachShader(program, shaders.fragment);
 
     glLinkProgram(program);
@@ -152,7 +162,10 @@ void attachAndLinkProgram(GLuint program, shaders_t shaders) {
     printLinkInfoLog(program);
 }
 
-GLuint createProgram(const char *vertexShaderPath, const char *fragmentShaderPath, const char *attributeLocations[], GLuint numberOfLocations) {
+GLuint createProgram(
+    const char *vertexShaderPath,
+    const char *fragmentShaderPath,
+    const char *attributeLocations[], GLuint numberOfLocations) {
     glslUtility::shaders_t shaders = glslUtility::loadShaders(vertexShaderPath, NULL, fragmentShaderPath);
 
     GLuint program = glCreateProgram();
@@ -166,7 +179,11 @@ GLuint createProgram(const char *vertexShaderPath, const char *fragmentShaderPat
     return program;
 }
 
-GLuint createProgram(const char *vertexShaderPath, const char *geometryShaderPath, const char *fragmentShaderPath, const char *attributeLocations[], GLuint numberOfLocations) {
+GLuint createProgram(
+    const char *vertexShaderPath,
+    const char *geometryShaderPath,
+    const char *fragmentShaderPath,
+    const char *attributeLocations[], GLuint numberOfLocations) {
     glslUtility::shaders_t shaders = glslUtility::loadShaders(vertexShaderPath, geometryShaderPath, fragmentShaderPath);
 
     GLuint program = glCreateProgram();

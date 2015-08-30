@@ -50,6 +50,8 @@ Skip this part if you are developing on a lab computer.
    * http://www.seas.upenn.edu/cets/software/msdn/
    * You need C++ support. None of the optional components are necessary.
 3. Install [CUDA 7](https://developer.nvidia.com/cuda-downloads?sid=925343).
+   * CUDA 7.5 is recommended for its new performance profiling tools.
+     However, 7.0 is fine (and is the version on the lab computers).
    * Use the Express installation. If using Custom, make sure you select
      Nsight for Visual Studio.
 4. Install [CMake](http://www.cmake.org/download/).
@@ -126,7 +128,7 @@ just rebuild your VS/Nsight project to make it update itself.
      (**NOTE:** you must use Win64, as we don't provide libraries for Win32.)
    * If you see an error like `CUDA_SDK_ROOT_DIR-NOTFOUND`,
      set `CUDA_SDK_ROOT_DIR` to your CUDA install path. This will be something
-     like: `C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.0`
+     like: `C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.5`
    * Click *Generate*.
 5. If generation was successful, there should now be a Visual Studio solution
    (`.sln`) file in the `build` directory that you just created. Open this.
@@ -134,6 +136,10 @@ just rebuild your VS/Nsight project to make it update itself.
 6. Build. (Note that there are Debug and Release configuration options.)
 7. Run. Make sure you run the `cis565_` target (not `ALL_BUILD`) by
    right-clicking it and selecting "Set as StartUp Project".
+   * If you have switchable graphics (NVIDIA Optimus), you may need to force
+     your program to run with only the NVIDIA card. In NVIDIA Control Panel,
+     under "Manage 3D Settings," set "Multi-display/Mixed GPU acceleration"
+     to "Single display performance mode".
 
 ### OS X & Linux
 
@@ -150,7 +156,7 @@ It is recommended that you use Nsight.
 4. Open Nsight. Set the workspace to the one *containing* your cloned repo.
 5. *File->New->Makefile Project with Existing Code*.
    * Set the *Existing Code Location* to the cloned project directory.
-   * Select *CUDA Toolkit 7.0*.
+   * Select *CUDA Toolkit*.
    * *Finish*.
 6. Select the *cis565-* project in the Project Explorer. From the *Project*
    menu, select *Build All*.
@@ -168,6 +174,7 @@ It is recommended that you use Nsight.
    * Make sure to `git add` the `main.cpp` file.
    * Use `git status` to make sure you didn't miss anything.
    * Use `git commit` to save a version of your code including your changes.
+     Write a short message describing your changes.
    * Use `git push` to sync your code history to the GitHub server.
 
 ## Part 5: Analyze
@@ -181,8 +188,9 @@ rest of your development on the lab computer.
 
 1. Go to the Nsight menu in Visual Studio.
 2. Select *Start Performance Analysis...*.
-3. Select *Trace Application*.
+3. Select *Trace Application*. Under *Trace Settings*, enable tracing for CUDA and OpenGL.
 4. Under *Application Control*, click *Launch*.
+   * If you have switchable graphics (NVIDIA Optimus), see the note in Part 3.
 5. Run the program for a few seconds, then close it.
 6. At the top of the report page, select *Timeline* from the drop-down menu.
 7. Take a screenshot of this tab and save it to `images`, for Part 6.
@@ -202,7 +210,7 @@ rest of your development on the lab computer.
      represents your own project, rather than the assignment. You can always
      read the instructions on the original GitHub page.
    * Add your name, computer, and whether it's a personal or lab computer.
-   * Embed the screenshots you took.
+   * Embed the screenshots you took. (`![](images/example.png`)
    * Syntax help: https://help.github.com/articles/writing-on-github/
 2. Add, commit, and push your screenshots and README.
    * Make sure your README looks good on GitHub!
@@ -211,9 +219,10 @@ rest of your development on the lab computer.
 
 ## Submit
 1. Open a GitHub pull request so that we can see that you have finished.
+   The title should be "Submission: YOUR NAME".
 2. Send an email to the TA (gmail: kainino1+cis565@) with:
    * **Subject**: in the form of `[CIS565] Project 0: PENNKEY`
-   * Direct link to YOUR fork on GitHub
+   * Direct link to your pull request on GitHub
    * In the form of a grade (0-100+), evaluate your own performance on the
      project.
      (N/A for Project 0.)
