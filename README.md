@@ -14,7 +14,7 @@ anything here that you don't want to share with the world.)
 Instructions (delete me)
 ========================
 
-This is due Sunday, September 6.
+This is due Monday, September 7.
 
 **Summary:** In this project, you will get some real experience writing simple
 CUDA kernels, using them, and analyzing their performance. You'll implement the
