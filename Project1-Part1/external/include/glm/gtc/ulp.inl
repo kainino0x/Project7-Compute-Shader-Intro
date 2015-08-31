@@ -50,7 +50,7 @@
 typedef union
 {
 	float value;
-	/* FIXME: Assumes 32 bit int.  */
+	/* : Assumes 32 bit int.  */
 	unsigned int word;
 } ieee_float_shape_type;
 

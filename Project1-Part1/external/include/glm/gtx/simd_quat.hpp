@@ -317,7 +317,7 @@ namespace detail
 		float const & y, 
 		float const & z);
 
-	// TODO: Move this to somewhere more appropriate. Used with fastMix() and fastSlerp().
+	// : Move this to somewhere more appropriate. Used with fastMix() and fastSlerp().
 	/// Performs the equivalent of glm::fastSin() on each component of the given __m128.
 	__m128 fastSin(__m128 x);
 

@@ -232,7 +232,7 @@ GLM_FUNC_QUALIFIER __m128 sse_mod_ps(__m128 x, __m128 y)
 	return sub0;
 }
 
-/// TODO
+/// 
 /*
 GLM_FUNC_QUALIFIER __m128 sse_modf_ps(__m128 x, __m128i & i)
 {

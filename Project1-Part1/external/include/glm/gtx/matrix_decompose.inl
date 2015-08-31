@@ -84,7 +84,7 @@ namespace glm
 			PerspectiveMatrix[i][3] = 0;
 		PerspectiveMatrix[3][3] = 1;
 
-		/// TODO: Fixme!
+		/// : Fixme!
 		if(determinant(PerspectiveMatrix) == static_cast<T>(0))
 			return false;
 
@@ -169,7 +169,7 @@ namespace glm
 
 		// Now, get the rotations out, as described in the gem.
 
-		// FIXME - Add the ability to return either quaternions (which are
+		//  - Add the ability to return either quaternions (which are
 		// easier to recompose with) or Euler angles (rx, ry, rz), which
 		// are easier for authors to deal with. The latter will only be useful
 		// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I

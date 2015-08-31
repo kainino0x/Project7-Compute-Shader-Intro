@@ -117,7 +117,7 @@
 // Compiler
 
 // User defines: GLM_FORCE_COMPILER_UNKNOWN
-// TODO ? __llvm__ 
+//  ? __llvm__ 
 
 #define GLM_COMPILER_UNKNOWN		0x00000000
 
