@@ -138,6 +138,8 @@ std::istream& utilityCore::safeGetline(std::istream& is, std::string& t) {
             t += (char)c;
         }
     }
+
+    return is;
 }
 //-----------------------------
 //-------GLM Printers----------
