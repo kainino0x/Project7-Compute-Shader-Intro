@@ -20,37 +20,21 @@
 //====================================
 
 GLuint positionLocation = 0;
-GLuint texcoordsLocation = 1;
 const char *attributeLocations[] = { "Position" };
-GLuint pbo = (GLuint)NULL;
-GLuint planeVBO = (GLuint)NULL;
-GLuint planeTBO = (GLuint)NULL;
-GLuint planeIBO = (GLuint)NULL;
-GLuint planetVBO = (GLuint)NULL;
-GLuint planetIBO = (GLuint)NULL;
+GLuint planetVAO = 0;
+GLuint planetVBO = 0;
+GLuint planetIBO = 0;
 GLuint displayImage;
 GLuint program[2];
 
-const unsigned int HEIGHT_FIELD = 0;
-const unsigned int PASS_THROUGH = 1;
+const unsigned int PROG_PLANET = 0;
 
-const int field_width  = 800;
-const int field_height = 800;
-
-float fovy = 60.0f;
-float zNear = 0.10;
-float zFar = 5.0;
+const float fovy = (float) (PI / 4);
+const float zNear = 0.10f;
+const float zFar = 5.0f;
 
 glm::mat4 projection;
-glm::mat4 view;
 glm::vec3 cameraPosition(1.75, 1.75, 1.35);
-
-//====================================
-// CUDA Stuff
-//====================================
-
-int width = 1000;
-int height = 1000;
 
 //====================================
 // Main
@@ -72,15 +56,5 @@ void runCUDA();
 // Setup/init Stuff
 //====================================
 bool init(int argc, char **argv);
-void initPBO(GLuint *pbo);
-void initCUDA();
-void initTextures();
 void initVAO();
 void initShaders(GLuint *program);
-
-//====================================
-// Cleanup Stuff
-//====================================
-void cleanupCUDA();
-void deletePBO(GLuint *pbo);
-void deleteTexture(GLuint *tex);
