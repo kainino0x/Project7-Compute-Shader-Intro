@@ -19,22 +19,18 @@ struct shuffle_mask
 //////////////////////////////////////
 // Implicit basic constructors
 
-#if !GLM_HAS_DEFAULTED_FUNCTIONS || !defined(GLM_FORCE_NO_CTOR_INIT)
-	GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD()
-#		ifdef GLM_FORCE_NO_CTOR_INIT
-			: Data(_mm_set_ps(0.0f, 0.0f, 0.0f, 0.0f))
-#		endif
-	{}
-#endif//!GLM_HAS_DEFAULTED_FUNCTIONS
-
-#if !GLM_HAS_DEFAULTED_FUNCTIONS
-	GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD(fvec4SIMD const & v) :
-		Data(v.Data)
-	{}
-#endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD()
+#	ifdef GLM_FORCE_NO_CTOR_INIT
+		: Data(_mm_set_ps(0.0f, 0.0f, 0.0f, 0.0f))
+#	endif
+{}
 
 GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD(__m128 const & Data) :
 	Data(Data)
+{}
+
+GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD(fvec4SIMD const & v) :
+	Data(v.Data)
 {}
 
 GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD(vec4 const & v) :
@@ -96,13 +92,11 @@ GLM_FUNC_QUALIFIER fvec4SIMD::fvec4SIMD(vec2 const & v1, vec2 const & v2) :
 //////////////////////////////////////
 // Unary arithmetic operators
 
-#if !GLM_HAS_DEFAULTED_FUNCTIONS
-	GLM_FUNC_QUALIFIER fvec4SIMD& fvec4SIMD::operator=(fvec4SIMD const & v)
-	{
-		this->Data = v.Data;
-		return *this;
-	}
-#endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+GLM_FUNC_QUALIFIER fvec4SIMD& fvec4SIMD::operator=(fvec4SIMD const & v)
+{
+	this->Data = v.Data;
+	return *this;
+}
 
 GLM_FUNC_QUALIFIER fvec4SIMD& fvec4SIMD::operator+=(float const & s)
 {

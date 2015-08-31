@@ -49,7 +49,8 @@ namespace detail
 	};
 }//namespace detail
 
-	// -- Component accesses --
+	//////////////////////////////////////
+	// Component accesses
 
 #	ifdef GLM_FORCE_SIZE_FUNC
 		template <typename T, precision P>
@@ -93,23 +94,20 @@ namespace detail
 		}
 #	endif//GLM_FORCE_SIZE_FUNC
 
-	// -- Implicit basic constructors --
+	//////////////////////////////////////
+	// Implicit basic constructors
 
-#	if !GLM_HAS_DEFAULTED_FUNCTIONS || !defined(GLM_FORCE_NO_CTOR_INIT)
-		template <typename T, precision P>
-		GLM_FUNC_QUALIFIER tquat<T, P>::tquat()
-#			ifndef GLM_FORCE_NO_CTOR_INIT
-				: x(0), y(0), z(0), w(1)
-#			endif
-		{}
-#	endif
+	template <typename T, precision P>
+	GLM_FUNC_QUALIFIER tquat<T, P>::tquat()
+#		ifndef GLM_FORCE_NO_CTOR_INIT
+			: x(0), y(0), z(0), w(1)
+#		endif
+	{}
 
-#	if !GLM_HAS_DEFAULTED_FUNCTIONS
-		template <typename T, precision P>
-		GLM_FUNC_QUALIFIER tquat<T, P>::tquat(tquat<T, P> const & q)
-			: x(q.x), y(q.y), z(q.z), w(q.w)
-		{}
-#	endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+	template <typename T, precision P>
+	GLM_FUNC_QUALIFIER tquat<T, P>::tquat(tquat<T, P> const & q)
+		: x(q.x), y(q.y), z(q.z), w(q.w)
+	{}
 
 	template <typename T, precision P>
 	template <precision Q>
@@ -117,7 +115,8 @@ namespace detail
 		: x(q.x), y(q.y), z(q.z), w(q.w)
 	{}
 
-	// -- Explicit basic constructors --
+	//////////////////////////////////////
+	// Explicit basic constructors
 
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER tquat<T, P>::tquat(ctor)
@@ -133,7 +132,8 @@ namespace detail
 		: x(x), y(y), z(z), w(w)
 	{}
 
-	// -- Conversion constructors --
+	//////////////////////////////////////////////////////////////
+	// Conversions
 
 	template <typename T, precision P>
 	template <typename U, precision Q>
@@ -222,19 +222,18 @@ namespace detail
 		return conjugate(q) / dot(q, q);
 	}
 
-	// -- Unary arithmetic operators --
+	//////////////////////////////////////////////////////////////
+	// tquat<valType> operators
 
-#	if !GLM_HAS_DEFAULTED_FUNCTIONS
-		template <typename T, precision P>
-		GLM_FUNC_QUALIFIER tquat<T, P> & tquat<T, P>::operator=(tquat<T, P> const & q)
-		{
-			this->w = q.w;
-			this->x = q.x;
-			this->y = q.y;
-			this->z = q.z;
-			return *this;
-		}
-#	endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+	template <typename T, precision P>
+	GLM_FUNC_QUALIFIER tquat<T, P> & tquat<T, P>::operator=(tquat<T, P> const & q)
+	{
+		this->w = q.w;
+		this->x = q.x;
+		this->y = q.y;
+		this->z = q.z;
+		return *this;
+	}
 
 	template <typename T, precision P>
 	template <typename U>
@@ -294,15 +293,14 @@ namespace detail
 		return *this;
 	}
 
-	// -- Unary bit operators --
+	//////////////////////////////////////////////////////////////
+	// tquat<T, P> external operators
 
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER tquat<T, P> operator-(tquat<T, P> const & q)
 	{
 		return tquat<T, P>(-q.w, -q.x, -q.y, -q.z);
 	}
-
-	// -- Binary operators --
 
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER tquat<T, P> operator+(tquat<T, P> const & q,	tquat<T, P> const & p)
@@ -316,6 +314,7 @@ namespace detail
 		return tquat<T, P>(q) *= p;
 	}
 
+	// Transformation
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER tvec3<T, P> operator*(tquat<T, P> const & q,	tvec3<T, P> const & v)
 	{
@@ -364,7 +363,8 @@ namespace detail
 			q.w / s, q.x / s, q.y / s, q.z / s);
 	}
 
-	// -- Boolean operators --
+	//////////////////////////////////////
+	// Boolean operators
 
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER bool operator==(tquat<T, P> const & q1, tquat<T, P> const & q2)
@@ -378,8 +378,7 @@ namespace detail
 		return (q1.x != q2.x) || (q1.y != q2.y) || (q1.z != q2.z) || (q1.w != q2.w);
 	}
 
-	// -- Operations --
-
+	////////////////////////////////////////////////////////
 	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER T length(tquat<T, P> const & q)
 	{

@@ -31,22 +31,24 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
+namespace detail
+{
 
-#	if !GLM_HAS_DEFAULTED_FUNCTIONS
-		template <>
-		GLM_FUNC_QUALIFIER tvec4<float, lowp>::tvec4()
-#			ifndef GLM_FORCE_NO_CTOR_INIT
-				: data(_mm_setzero_ps())
-#			endif
-		{}
+}//namespace detail
+
+	template <>
+	GLM_FUNC_QUALIFIER tvec4<float, lowp>::tvec4()
+#		ifndef GLM_FORCE_NO_CTOR_INIT
+			: data(_mm_setzero_ps())
+#		endif
+	{}
 	
-		template <>
-		GLM_FUNC_QUALIFIER tvec4<float, mediump>::tvec4()
-#			ifndef GLM_FORCE_NO_CTOR_INIT
-				: data(_mm_setzero_ps())
-#			endif
-		{}
-#	endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+	template <>
+	GLM_FUNC_QUALIFIER tvec4<float, mediump>::tvec4()
+#		ifndef GLM_FORCE_NO_CTOR_INIT
+			: data(_mm_setzero_ps())
+#		endif
+	{}
 
 	template <>
 	GLM_FUNC_QUALIFIER tvec4<float, lowp>::tvec4(float s) :

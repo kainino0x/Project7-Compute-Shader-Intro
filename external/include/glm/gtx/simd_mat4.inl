@@ -64,17 +64,15 @@ GLM_FUNC_QUALIFIER fvec4SIMD const & fmat4x4SIMD::operator[]
 //////////////////////////////////////////////////////////////
 // Constructors
 
-#if !GLM_HAS_DEFAULTED_FUNCTIONS || !defined(GLM_FORCE_NO_CTOR_INIT)
-	GLM_FUNC_QUALIFIER fmat4x4SIMD::fmat4x4SIMD()
-	{
-#		ifndef GLM_FORCE_NO_CTOR_INIT
-			this->Data[0] = fvec4SIMD(1, 0, 0, 0);
-			this->Data[1] = fvec4SIMD(0, 1, 0, 0);
-			this->Data[2] = fvec4SIMD(0, 0, 1, 0);
-			this->Data[3] = fvec4SIMD(0, 0, 0, 1);
-#		endif
-	}
-#	endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+GLM_FUNC_QUALIFIER fmat4x4SIMD::fmat4x4SIMD()
+{
+#	ifndef GLM_FORCE_NO_CTOR_INIT
+		this->Data[0] = fvec4SIMD(1, 0, 0, 0);
+		this->Data[1] = fvec4SIMD(0, 1, 0, 0);
+		this->Data[2] = fvec4SIMD(0, 0, 1, 0);
+		this->Data[3] = fvec4SIMD(0, 0, 0, 1);
+#	endif
+}
 
 GLM_FUNC_QUALIFIER fmat4x4SIMD::fmat4x4SIMD(float const & s)
 {
@@ -137,19 +135,17 @@ GLM_FUNC_QUALIFIER fmat4x4SIMD::fmat4x4SIMD
 //////////////////////////////////////////////////////////////
 // mat4 operators
 
-#if !GLM_HAS_DEFAULTED_FUNCTIONS
-	GLM_FUNC_QUALIFIER fmat4x4SIMD& fmat4x4SIMD::operator=
-	(
-		fmat4x4SIMD const & m
-	)
-	{
-		this->Data[0] = m[0];
-		this->Data[1] = m[1];
-		this->Data[2] = m[2];
-		this->Data[3] = m[3];
-		return *this;
-	}
-#endif//!GLM_HAS_DEFAULTED_FUNCTIONS
+GLM_FUNC_QUALIFIER fmat4x4SIMD& fmat4x4SIMD::operator= 
+(
+	fmat4x4SIMD const & m
+)
+{
+	this->Data[0] = m[0];
+	this->Data[1] = m[1];
+	this->Data[2] = m[2];
+	this->Data[3] = m[3];
+	return *this;
+}
 
 GLM_FUNC_QUALIFIER fmat4x4SIMD & fmat4x4SIMD::operator+= 
 (
