@@ -1,33 +1,32 @@
-CUDA Getting Started
-====================
+CUDA Introduction
+=================
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 0**
+**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 1**
 
 * (TODO) YOUR NAME HERE
 * Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
 
 ### (TODO: Your README)
 
-Include screenshots, analysis, etc. (Remember, this is public, so don't put anything here that you don't want to
-share with the world.)
+Include screenshots, analysis, etc. (Remember, this is public, so don't put
+anything here that you don't want to share with the world.)
 
 Instructions (delete me)
 ========================
 
-This is due **Wednesday, September 2**.
+This is due **[INSTRUCTOR TODO]**.
 
-**Summary:** In this project, you will set up your CUDA development tools and
-verify that you can build, run, and do performance analysis.
+**Summary:** In this project, you will get some real experience writing simple
+CUDA kernels, using them, and analyzing their performance. You'll implement the
+simulation step of an N-body simulation, and you'll write some GPU-accelerated
+matrix math operations.
 
-This project is a simple program that demonstrates CUDA and OpenGL functionality
-and interoperability, testing that CUDA has been properly installed. If the
-machine you are working on has CUDA and OpenGL 4.0 support, then when you run
-the program, you should see either one or two colors depending on your
-graphics card.
+## Part 0: Nothing New
 
 This project (and all other CUDA projects in this course) requires an NVIDIA
-graphics card with CUDA capability. Any card with Compute Capability 2.0 (sm_20)
-or greater will work. Gheck your GPU on this [compatibility table](https://developer.nvidia.com/cuda-gpus).
+graphics card with CUDA capability. Any card with Compute Capability 2.0
+(`sm_20`) or greater will work. Gheck your GPU on this
+[compatibility table](https://developer.nvidia.com/cuda-gpus).
 If you do not have a personal machine with these specs, you may use
 computers in the SIG Lab and Moore 100B/C.
 
@@ -36,188 +35,173 @@ not presently be able to do GPU performance profiling. This will be very
 important for debugging performance bottlenecks in your program. If you do not
 have administrative access to any CUDA-capable machine, please email the TA.
 
+## Part 1: N-body Simulation
 
-## Part 1: Setting up your development environment
+### 1.0. The Usual
 
-Skip this part if you are developing on a lab computer.
+See Project 0, Parts 1-3 for reference.
 
-### Windows
-
-1. Make sure you are running Windows 7/8/10 and that your NVIDIA drivers are
-   up-to-date. You will need support for OpenGL 4.0 or better in this course.
-2. Install Visual Studio 2013 (**not** 2015).
-   * 2010/2012 will also work, if you already have one installed.
-   * http://www.seas.upenn.edu/cets/software/msdn/
-   * You need C++ support. None of the optional components are necessary.
-3. Install [CUDA 7](https://developer.nvidia.com/cuda-downloads?sid=925343).
-   * CUDA 7.5 is recommended for its new performance profiling tools.
-     However, 7.0 is fine (and is the version on the lab computers).
-   * Use the Express installation. If using Custom, make sure you select
-     Nsight for Visual Studio.
-4. Install [CMake](http://www.cmake.org/download/).
-5. Install [Git](https://git-scm.com/download/win).
-
-### OS X
-
-1. Make sure you are running OS X 10.9 or newer.
-2. Install XCode (available for free from the App Store).
-   * On 10.10, this may not actually be necessary. Try running `gcc`
-     in a terminal first.
-3. Install OS X Unix Command Line Development Tools (if necessary).
-4. Install [CUDA 7](https://developer.nvidia.com/cuda-downloads?sid=925343)
-   (don't use cask; the CUDA cask is outdated).
-   * Make sure you get Nsight.
-5. Install [Git](https://git-scm.com/download/mac)
-   (or: `brew install git`).
-6. Install [CMake](http://www.cmake.org/download/)
-   (or: `brew cask install cmake`).
-
-### Linux
-
-Note: to debug CUDA on Linux, you will need an NVIDIA GPU with Compute
-Capability 5.0.
-
-1. Install [CUDA 7](https://developer.nvidia.com/cuda-downloads?sid=925343).
-   * Make sure you get Nsight.
-2. Install Git (`apt-get install git` on Debian/Ubuntu).
-3. Install CMake (`apt-get install cmake` on Debian/Ubuntu).
-
-
-## Part 2: Fork & Clone
-
-1. Use GitHub to fork this repository into your own GitHub account.
-2. If you haven't used Git, you'll need to set up a few things.
-   * On Windows: In order to use Git commands, you can use Git Bash. You can
-     right-click in a folder and open Git Bash there.
-   * On OS X/Linux: Open a terminal.
-   * Configure git with some basic options by running these commands:
-     * `git config --global push.default simple`
-     * `git config --global user.name "YOUR NAME"`
-     * `git config --global user.email "GITHUB_USER@users.noreply.github.com"`
-     * (Or, you can use your own address, but remember that it will be public!)
-3. Clone from GitHub onto your machine:
-   * Navigate to the directory where you want to keep your 565 projects, then
-     clone your fork.
-     * `git clone` the clone URL from your GitHub fork homepage.
-
-* [How to use GitHub](https://guides.github.com/activities/hello-world/)
-* [How to use Git](http://git-scm.com/docs/gittutorial)
-
-
-## Part 3: Build & Run
+If you are using Nsight and started Project 0 early, note that things have
+changed slightly. Instead of creating a new project, use
+*File->Import->General->Existing Projects Into Workspace*, and select the
+`Project1-Part1` folder as the root directory. Under *Project->Build
+Configurations->Set Active...*, you can now select various Release and Debug
+builds.
 
 * `src/` contains the source code.
-* `external/` contains the binaries and headers for GLEW and GLFW.
+* `external/` contains the binaries and headers for GLEW, GLFW, and GLM.
 
 **CMake note:** Do not change any build settings or add any files to your
 project directly (in Visual Studio, Nsight, etc.) Instead, edit the
-`src/CMakeLists.txt` file. Any files you add must be added here. If you edit it,
-just rebuild your VS/Nsight project to make it update itself.
-
-### Windows
-
-1. In Git Bash, navigate to your cloned project directory.
-2. Create a `build` directory: `mkdir build`
-   * (This "out-of-source" build makes it easy to delete the `build` directory
-     and try again if something goes wrong with the configuration.)
-3. Navigate into that directory: `cd build`
-4. Open the CMake GUI to configure the project:
-   * `cmake-gui ..`
-   * or: "C:\Program Files (x86)\cmake\bin\cmake-gui.exe" ..
-   * Click *Configure*.  Select your version of Visual Studio, Win64.
-     (**NOTE:** you must use Win64, as we don't provide libraries for Win32.)
-   * If you see an error like `CUDA_SDK_ROOT_DIR-NOTFOUND`,
-     set `CUDA_SDK_ROOT_DIR` to your CUDA install path. This will be something
-     like: `C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v7.5`
-   * Click *Generate*.
-5. If generation was successful, there should now be a Visual Studio solution
-   (`.sln`) file in the `build` directory that you just created. Open this.
-   (from the command line: `explorer *.sln`)
-6. Build. (Note that there are Debug and Release configuration options.)
-7. Run. Make sure you run the `cis565_` target (not `ALL_BUILD`) by
-   right-clicking it and selecting "Set as StartUp Project".
-   * If you have switchable graphics (NVIDIA Optimus), you may need to force
-     your program to run with only the NVIDIA card. In NVIDIA Control Panel,
-     under "Manage 3D Settings," set "Multi-display/Mixed GPU acceleration"
-     to "Single display performance mode".
-
-### OS X & Linux
-
-It is recommended that you use Nsight.
-
-1. In a terminal, navigate to your cloned project directory
-   (`cd some/path`).
-2. Type `make`.
-3. If you see an error like `CUDA_SDK_ROOT_DIR-NOTFOUND`:
-   * `cd` to the build directory, then run CMake GUI: `cmake-gui ..`
-   * Set `CUDA_SDK_ROOT_DIR` to your CUDA install path.
-     This will be something like: `/usr/local/cuda`
-   * Click *Configure*, then *Generate*.
-4. Open Nsight. Set the workspace to the one *containing* your cloned repo.
-5. *File->New->Makefile Project with Existing Code*.
-   * Set the *Existing Code Location* to the cloned project directory.
-   * Select *CUDA Toolkit*.
-   * *Finish*.
-6. Select the *cis565-* project in the Project Explorer. From the *Project*
-   menu, select *Build All*.
-7. From the *Run* menu, *Run*. Select the `cis565_` binary.
+`src/CMakeLists.txt` file. Any files you create must be added here. If you edit
+it, just rebuild your VS/Nsight project to sync the changes into the IDE.
 
 
-## Part 4: Modify
+### 1.1. CUDA Done That With My Eyes Closed
 
-1. Search the code for `TODO`: you'll find one in `src/main.cpp` on line 13.
-   Change the string to your name, rebuild, and run.
-   (`m_yourName = "TODO: YOUR NAME HERE";`)
-2. Take a screenshot of the window (including title bar) and save it to the
-   `images` directory for Part 6.
-3. You're done with some code changes now; make a commit!
-   * Make sure to `git add` the `main.cpp` file.
-   * Use `git status` to make sure you didn't miss anything.
-   * Use `git commit` to save a version of your code including your changes.
-     Write a short message describing your changes.
-   * Use `git push` to sync your code history to the GitHub server.
+To get used to using CUDA kernels, you'll write simple CUDA kernels and
+kernel invocations for performing an N-body gravitational simulation.
+The following source files are included in the project:
 
-## Part 5: Analyze
+* `src/main.cpp`: Performs all of the CUDA/OpenGL setup and OpenGL
+  visualization.
+* `src/kernel.cu`: CUDA device functions, state, kernels, and CPU functions for
+  kernel invocations.
 
-**NOTE: This part *cannot* be done on the lab computers, as it requires
-administrative access.** If you do not have a CUDA-capable computer of your
-own, you may need to borrow one for this part. However, you can still do the
-rest of your development on the lab computer.
+1. Search the code for `TODO`:
+   * `src/kernel.cu`: Use what you learned in the first lecture to
+     figure out how to resolve these 4 TODOs.
 
-### Windows
-
-1. Go to the Nsight menu in Visual Studio.
-2. Select *Start Performance Analysis...*.
-3. Select *Trace Application*. Under *Trace Settings*, enable tracing for CUDA and OpenGL.
-4. Under *Application Control*, click *Launch*.
-   * If you have switchable graphics (NVIDIA Optimus), see the note in Part 3.
-5. Run the program for a few seconds, then close it.
-6. At the top of the report page, select *Timeline* from the drop-down menu.
-7. Take a screenshot of this tab and save it to `images`, for Part 6.
-
-### OS X & Linux
-
-1. Open your project in Nsight.
-2. *Run*->*Profile*.
-3. Run the program for a few seconds, then close it.
-4. Take a screenshot of the timeline and save it to `images`, for Part 6.
+Take a screenshot. Commit and push your code changes.
 
 
-## Part 6: Write-up
+## Part 2: Matrix Math
 
-1. Update ALL of the TODOs at the top of this README:
-   * Remove all of these instructions, so that your README
-     represents your own project, rather than the assignment. You can always
-     read the instructions on the original GitHub page.
-   * Add your name, computer, and whether it's a personal or lab computer.
-   * Embed the screenshots you took. (`![](images/example.png`)
-   * Syntax help: https://help.github.com/articles/writing-on-github/
-2. Add, commit, and push your screenshots and README.
-   * Make sure your README looks good on GitHub!
-3. If you have modified either of the `CMakeLists.txt` at all (aside from
-   the list of `SOURCE_FILES`), you **must** test your project in Moore 100B.
+In this part, you'll set up a CUDA project with some simple matrix math
+functionality. Put this in the `Project1-Part2` directory in your repository.
+
+### 1.1. Create Your Project
+
+You'll need to copy over all of the boilerplate project-related files from
+Part 1:
+
+* `cmake/`
+* `external/`
+* `.cproject`
+* `.project`
+* `GNUmakefile`
+* `CMakeLists.txt`
+* `src/CMakeLists.txt`
+
+Next, create empty text files for your main function and CUDA kernels:
+
+* `src/main.cpp`
+* `src/matrix_math.h`
+* `src/matrix_math.cu`
+
+As you work through the next steps, find and use relevant code from Part 1 to
+get the new project set up: includes, error checking, initialization, etc.
+
+### 1.2. Setting Up CUDA Memory
+
+As discussed in class, there are two separate memory spaces: host memory and
+device memory. Host memory is accessible by the CPU, while device memory is
+accessible by the GPU.
+
+In order to allocate memory on the GPU, we need to use the CUDA library
+function `cudaMalloc`. This reserves a portion of the GPU memory and returns a
+pointer, like standard `malloc` - but the pointer returned by `cudaMalloc` is
+in the GPU memory space and is only accessible from GPU code.
+
+We can copy memory to and from the GPU using `cudaMemcpy`. Like C `memcpy`,
+you will need to specify the size of memory that you are copying. But
+`cudaMemcpy` has an additional argument - the last argument specifies the
+whether the copy is from host to device, device to host, device to device, or
+host to host.
+
+* Look up documentation on `cudaMalloc` and `cudaMemcpy` if you need to find
+  out how to use them - they're not quite obvious.
+
+In an initialization function in `matrix_math.cu`, initialize two 5x5 matrices
+on the host and two on the device. Prefix your variables with `hst_` and
+`dev_`, respectively, so you know what kind of pointers they are!
+These arrays can each be represented as a 1D array of floats:
+
+`{ A_00, A_01, A_02, A_03, A_04, A_10, A_11, A_12, ... }`
+
+Don't forget to call your initialization function from your `main` function in
+`main.cpp`.
+
+### 1.3. Creating CUDA Kernels
+
+Given 5x5 matrices A, B, and C (each represented as above), implement the
+following functions as CUDA kernels (`__global__`):
+
+* `mat_add(A, B, C)`: `C` is overwritten with the result of `A + B`
+* `mat_sub(A, B, C)`: `C` is overwritten with the result of `A - B`
+* `mat_mul(A, B, C)`: `C` is overwritten with the result of `A * B`
+
+You should write some tests to make sure that the results of these operations
+are as you expect.
+
+Tips:
+
+* `__global__` and `__device__` functions only have access to memory that is
+  stored on the device. Any data that you want to use on the CPU or GPU must
+  exist in the right memory space. If you need to move data, you can use
+  `cudaMemcpy`.
+* The triple angle brackets `<<< >>>` provide parameters to the CUDA kernel
+  invocation: tile size, block size, and threads per warp.
+* Don't worry if your IDE doesn't understand some CUDA syntax (e.g.
+  `__device__` or `<<< >>>`). By default, it may not understand CUDA
+  extensions.
+
+
+## Part 3: Performance Analysis
+
+For this project, we will guide you through your performance analysis with some
+basic questions. In the future, you will guide your own performance analysis -
+but these simple questions will always be critical to answer. In general, we
+want you to go above and beyond the suggested performance investigations and
+explore how different aspects of your code impact performance as a whole.
+
+The provided framerate meter (in the window title) will be a useful base
+metric, but adding your own `cudaTimer`s, etc., will allow you to do more
+fine-grained benchmarking of various parts of your code.
+
+REMEMBER:
+* Performance should always be measured relative to some baseline when
+  possible. A GPU can make your program faster - but by how much?
+* If a change impacts performance, show a comparison. Describe your changes.
+* Describe the methodology you are using to benchmark.
+* Performance plots are a good thing.
+
+### Questions
+
+* Parts 1 & 2: How does changing the tile and block sizes affect performance?
+  Why?
+* Part 1: How does changing the number of planets affect performance? Why?
+* Part 2: Without running comparisons of CPU code vs. GPU code, how would you
+  expect the performance to compare? Why? What might be the trade-offs?
+
+**NOTE: Nsight performance analysis tools *cannot* presently be used on the lab
+computers, as they require administrative access.** If you do not have access
+to a CUDA-capable computer, the lab computers still allow you to do timing
+mesasurements! However, the tools are very useful for performance debugging.
+
+
+## Part 4: Write-up
+
+1. Update all of the TODOs at the top of this README.
+2. Add your performance analysis.
+
 
 ## Submit
+
+If you have modified any of the `CMakeLists.txt` files at all (aside from the
+list of `SOURCE_FILES`), you must test that your project can build in Moore
+100B/C. Beware of any build issues discussed on the Google Group.
+
 1. Open a GitHub pull request so that we can see that you have finished.
    The title should be "Submission: YOUR NAME".
 2. Send an email to the TA (gmail: kainino1+cis565@) with:
@@ -225,7 +209,6 @@ rest of your development on the lab computer.
    * Direct link to your pull request on GitHub
    * In the form of a grade (0-100+), evaluate your own performance on the
      project.
-     (N/A for Project 0.)
    * Feedback on the project itself, if any.
 
 And you're done!
