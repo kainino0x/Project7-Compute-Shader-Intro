@@ -25,7 +25,7 @@ matrix math operations.
 
 This project (and all other CUDA projects in this course) requires an NVIDIA
 graphics card with CUDA capability. Any card with Compute Capability 2.0
-(`sm_20`) or greater will work. Gheck your GPU on this
+(`sm_20`) or greater will work. Check your GPU on this
 [compatibility table](https://developer.nvidia.com/cuda-gpus).
 If you do not have a personal machine with these specs, you may use
 computers in the SIG Lab and Moore 100B/C.
