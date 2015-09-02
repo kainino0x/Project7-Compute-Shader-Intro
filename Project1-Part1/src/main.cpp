@@ -117,7 +117,7 @@ bool init(int argc, char **argv) {
 }
 
 void initVAO() {
-	glm::vec4 vertices[] = {
+    glm::vec4 vertices[] = {
         glm::vec4( -1.0, -1.0, 0.0, 0.0 ),
         glm::vec4( -1.0,  1.0, 0.0, 0.0 ),
         glm::vec4(  1.0,  1.0, 0.0, 0.0 ),
