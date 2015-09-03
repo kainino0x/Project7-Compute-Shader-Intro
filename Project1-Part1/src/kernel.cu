@@ -218,3 +218,10 @@ void Nbody::stepSimulation(float dt) {
     // TODO: Using the CUDA kernels you wrote above, write a function that
     // calls the kernels to perform a full simulation step.
 }
+
+void Nbody::endSimulation()
+{
+    cudaFree(dev_acc);
+    cudaFree(dev_vel);
+    cudaFree(dev_pos);
+}
