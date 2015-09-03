@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
 
     if (init(argc, argv)) {
         mainLoop();
+        Nbody::endSimulation();
         return 0;
     } else {
         return 1;

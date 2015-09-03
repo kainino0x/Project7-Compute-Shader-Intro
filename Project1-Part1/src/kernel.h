@@ -9,4 +9,6 @@ namespace Nbody {
 void initSimulation(int N);
 void stepSimulation(float dt);
 void copyPlanetsToVBO(float *vbodptr);
+
+void endSimulation();
 }
