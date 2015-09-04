@@ -170,9 +170,10 @@ void Nbody::copyPlanetsToVBO(float *vbodptr) {
  ******************/
 
 /**
- * Compute the acceleration on a body at `my_pos` due to the `N` bodies in the array `other_planets`.
+ * Compute the acceleration on the body with index `iSelf` due to the `N`
+ * bodies in the array `pos`.
  */
-__device__  glm::vec3 accelerate(int N, int iSelf, glm::vec3 this_planet, const glm::vec3 *other_planets) {
+__device__ glm::vec3 accelerate(int N, int iSelf, const glm::vec3 *pos) {
     // TODO: Compute the acceleration on `my_pos` due to:
     //   * The star at the origin (with mass `starMass`)
     //   * All of the *other* planets (with mass `planetMass`)
@@ -189,7 +190,7 @@ __device__  glm::vec3 accelerate(int N, int iSelf, glm::vec3 this_planet, const 
     //    * G is the universal gravitational constant (already defined for you)
     //    * M is the mass of the other object
     //    * r is the distance between this object and the other object
-    
+
     return glm::vec3(0.0f);
 }
 
