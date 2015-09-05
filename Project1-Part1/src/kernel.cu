@@ -199,7 +199,7 @@ __device__ glm::vec3 accelerate(int N, int iSelf, const glm::vec3 *pos) {
  * Compute the total instantaneous acceleration using `accelerate`, then store that into `acc`.
  */
 __global__ void kernUpdateAcc(int N, float dt, const glm::vec3 *pos, glm::vec3 *acc) {
-    // TODO: implement updateAccArray.
+    // TODO: implement kernUpdateAcc.
     // This function body runs once on each CUDA thread.
     // To avoid race conditions, each instance should only write ONE value to `acc`!
 }
@@ -209,7 +209,7 @@ __global__ void kernUpdateAcc(int N, float dt, const glm::vec3 *pos, glm::vec3 *
  * simple Euler integration scheme. Acceleration must be updated before calling this kernel.
  */
 __global__ void kernUpdateVelPos(int N, float dt, glm::vec3 *pos, glm::vec3 *vel, const glm::vec3 *acc) {
-    // TODO: implement updateVelocityPosition
+    // TODO: implement kernUpdateVelPos.
 }
 
 /**
@@ -220,8 +220,7 @@ void Nbody::stepSimulation(float dt) {
     // calls the kernels to perform a full simulation step.
 }
 
-void Nbody::endSimulation()
-{
+void Nbody::endSimulation() {
     cudaFree(dev_acc);
     cudaFree(dev_vel);
     cudaFree(dev_pos);
