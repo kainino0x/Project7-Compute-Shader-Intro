@@ -69,7 +69,7 @@ The following source files are included in the project:
   kernel invocations.
 
 1. Search the code for `TODO`:
-   * `src/kernel.cu`: Use what you learned in the first lecture to
+   * `src/kernel.cu`: Use what you learned in the first lectures to
      figure out how to resolve these 4 TODOs.
 
 Take a screenshot. Commit and push your code changes.
@@ -177,6 +177,18 @@ REMEMBER:
 * Performance plots are a good thing.
 
 ### Questions
+
+For Part 1, there are two ways to measure performance:
+* Disable visualization so that the framerate reported will be for the the
+  simulation only, and not be limited to 60 fps. This way, the framerate
+  reported in the window title will be useful.
+  * Change `#define VISUALIZE` to `0`.
+* For tighter timing measurement, you can use CUDA events to measure just the
+  simulation CUDA kernel. Info on this can be found online easily. You will
+  probably have to average over several simulation steps, similar to the way
+  FPS is currently calculated.
+
+**Answer these:**
 
 * Parts 1 & 2: How does changing the tile and block sizes affect performance?
   Why?
