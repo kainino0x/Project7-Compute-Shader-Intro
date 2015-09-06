@@ -41,7 +41,8 @@ have administrative access to any CUDA-capable machine, please email the TA.
 
 See Project 0, Parts 1-3 for reference.
 
-If you are using Nsight and started Project 0 early, note that things have
+If you are using the Nsight IDE (not Visual Studio) and started Project 0
+early, note that things have
 changed slightly. Instead of creating a new project, use
 *File->Import->General->Existing Projects Into Workspace*, and select the
 `Project1-Part1` folder as the root directory. Under *Project->Build
