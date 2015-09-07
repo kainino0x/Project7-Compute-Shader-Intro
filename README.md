@@ -123,8 +123,8 @@ host to host.
 * Look up documentation on `cudaMalloc` and `cudaMemcpy` if you need to find
   out how to use them - they're not quite obvious.
 
-In an initialization function in `matrix_math.cu`, initialize two 5x5 matrices
-on the host and two on the device. Prefix your variables with `hst_` and
+In an initialization function in `matrix_math.cu`, initialize three 5x5 matrices
+on the host and three on the device. Prefix your variables with `hst_` and
 `dev_`, respectively, so you know what kind of pointers they are!
 These arrays can each be represented as a 1D array of floats:
 
