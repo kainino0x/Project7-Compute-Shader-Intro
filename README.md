@@ -153,7 +153,7 @@ Tips:
   exist in the right memory space. If you need to move data, you can use
   `cudaMemcpy`.
 * The triple angle brackets `<<< >>>` provide parameters to the CUDA kernel
-  invocation: `<<<blocks_per_tile, threads_per_block, ...>>>`.
+  invocation: `<<<blocks_per_grid, threads_per_block, ...>>>`.
 * Don't worry if your IDE doesn't understand some CUDA syntax (e.g.
   `__device__` or `<<< >>>`). By default, it may not understand CUDA
   extensions.
@@ -197,7 +197,7 @@ asynchronous.
 
 **Answer these:**
 
-* Parts 1 & 2: How does changing the tile and block sizes affect performance?
+* Parts 1 & 2: How does changing the grid and block sizes affect performance?
   Why?
 * Part 1: How does changing the number of planets affect performance? Why?
 * Part 2: Without running comparisons of CPU code vs. GPU code, how would you
