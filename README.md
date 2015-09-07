@@ -152,7 +152,7 @@ Tips:
   exist in the right memory space. If you need to move data, you can use
   `cudaMemcpy`.
 * The triple angle brackets `<<< >>>` provide parameters to the CUDA kernel
-  invocation: tile size, block size, and threads per warp.
+  invocation: `<<<blocks_per_tile, threads_per_block, ...>>>`.
 * Don't worry if your IDE doesn't understand some CUDA syntax (e.g.
   `__device__` or `<<< >>>`). By default, it may not understand CUDA
   extensions.
