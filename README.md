@@ -27,8 +27,8 @@ This project (and all other CUDA projects in this course) requires an NVIDIA
 graphics card with CUDA capability. Any card with Compute Capability 2.0
 (`sm_20`) or greater will work. Check your GPU on this
 [compatibility table](https://developer.nvidia.com/cuda-gpus).
-If you do not have a personal machine with these specs, you may use
-computers in the SIG Lab and Moore 100B/C.
+If you do not have a personal machine with these specs, you may use those
+computers in the Moore 100B/C which have supported GPUs.
 
 **HOWEVER**: If you need to use the lab computer for your development, you will
 not presently be able to do GPU performance profiling. This will be very
