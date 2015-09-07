@@ -156,7 +156,7 @@ __global__ void kernCopyPlanetsToVBO(int N, glm::vec3 *pos, float *vbo, float s_
  * Wrapper for call to the kernCopyPlanetsToVBO CUDA kernel.
  */
 void Nbody::copyPlanetsToVBO(float *vbodptr) {
-    dim3 fullBlocksPerGrid((int)ceil(float(numObjects) / float(blockSize)));
+    dim3 fullBlocksPerGrid((numObjects + blockSize - 1) / blockSize);
 
     kernCopyPlanetsToVBO<<<fullBlocksPerGrid, blockSize>>>(numObjects, dev_pos, vbodptr, scene_scale);
     checkCUDAErrorWithLine("copyPlanetsToVBO failed!");
