@@ -112,7 +112,8 @@ accessible by the GPU.
 In order to allocate memory on the GPU, we need to use the CUDA library
 function `cudaMalloc`. This reserves a portion of the GPU memory and returns a
 pointer, like standard `malloc` - but the pointer returned by `cudaMalloc` is
-in the GPU memory space and is only accessible from GPU code.
+in the GPU memory space and is only accessible from GPU code. You can use
+`cudaFree` to free GPU memory allocated using `cudaMalloc`.
 
 We can copy memory to and from the GPU using `cudaMemcpy`. Like C `memcpy`,
 you will need to specify the size of memory that you are copying. But
@@ -120,7 +121,7 @@ you will need to specify the size of memory that you are copying. But
 whether the copy is from host to device, device to host, device to device, or
 host to host.
 
-* Look up documentation on `cudaMalloc` and `cudaMemcpy` if you need to find
+* Look up documentation on `cudaMalloc`, 'cudaFree', and `cudaMemcpy` to find
   out how to use them - they're not quite obvious.
 
 In an initialization function in `matrix_math.cu`, initialize three 5x5 matrices
@@ -130,8 +131,8 @@ These arrays can each be represented as a 1D array of floats:
 
 `{ A_00, A_01, A_02, A_03, A_04, A_10, A_11, A_12, ... }`
 
-Don't forget to call your initialization function from your `main` function in
-`main.cpp`.
+You should also create cleanup method(s) to free the CPU and GPU memory you
+allocated. Don't forget to initialize and cleanup in main!
 
 ### 1.3. Creating CUDA Kernels
 
