@@ -21,11 +21,10 @@ const float DT = 0.2f;
  * C main function.
  */
 int main(int argc, char* argv[]) {
-    projectName = "565 CUDA Intro: N-Body";
+    projectName = "565 Compute Shader Intro: N-Body";
 
     if (init(argc, argv)) {
         mainLoop();
-        Nbody::endSimulation();
         return 0;
     } else {
         return 1;
@@ -40,29 +39,9 @@ std::string deviceName;
 GLFWwindow *window;
 
 /**
- * Initialization of CUDA and GLFW.
+ * Initialization of GLFW.
  */
 bool init(int argc, char **argv) {
-    // Set window title to "Student Name: [SM 2.0] GPU Name"
-    cudaDeviceProp deviceProp;
-    int gpuDevice = 0;
-    int device_count = 0;
-    cudaGetDeviceCount(&device_count);
-    if (gpuDevice > device_count) {
-        std::cout
-                << "Error: GPU device number is greater than the number of devices!"
-                << " Perhaps a CUDA-capable GPU is not installed?"
-                << std::endl;
-        return false;
-    }
-    cudaGetDeviceProperties(&deviceProp, gpuDevice);
-    int major = deviceProp.major;
-    int minor = deviceProp.minor;
-
-    std::ostringstream ss;
-    ss << projectName << " [SM " << major << "." << minor << " " << deviceProp.name << "]";
-    deviceName = ss.str();
-
     // Window setup stuff
     glfwSetErrorCallback(errorCallback);
 
@@ -96,14 +75,6 @@ bool init(int argc, char **argv) {
 
     // Initialize drawing state
     initVAO();
-
-    // Default to device ID 0. If you have more than one GPU and want to test a non-default one,
-    // change the device ID.
-    cudaGLSetGLDevice(0);
-
-    cudaGLRegisterBufferObject(planetVBO);
-    // Initialize N-body simulation
-    Nbody::initSimulation(N_FOR_VIS);
 
     projection = glm::perspective(fovy, float(width) / float(height), zNear, zFar);
     glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(0), glm::vec3(0, 0, 1));
@@ -184,23 +155,6 @@ void initShaders(GLuint * program) {
 //====================================
 // Main loop
 //====================================
-void runCUDA() {
-    // Map OpenGL buffer object for writing from CUDA on a single GPU
-    // No data is moved (Win & Linux). When mapped to CUDA, OpenGL should not
-    // use this buffer
-
-    float4 *dptr = NULL;
-    float *dptrvert = NULL;
-    cudaGLMapBufferObject((void**)&dptrvert, planetVBO);
-
-    // execute the kernel
-    Nbody::stepSimulation(DT);
-#if VISUALIZE
-    Nbody::copyPlanetsToVBO(dptrvert);
-#endif
-    // unmap buffer object
-    cudaGLUnmapBufferObject(planetVBO);
-}
 
 void mainLoop() {
     double fps = 0;
@@ -218,8 +172,6 @@ void mainLoop() {
             timebase = time;
             frame = 0;
         }
-
-        runCUDA();
 
         std::ostringstream ss;
         ss << "[";

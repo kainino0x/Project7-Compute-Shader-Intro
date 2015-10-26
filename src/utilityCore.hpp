@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "cudaMat4.hpp"
 
 #define PI                          3.1415926535897932384626422832795028841971
 #define TWO_PI                      6.2831853071795864769252867665590057683943
@@ -32,10 +31,7 @@ extern bool replaceString(std::string& str, const std::string& from, const std::
 extern glm::vec3 clampRGB(glm::vec3 color);
 extern bool epsilonCheck(float a, float b);
 extern std::vector<std::string> tokenizeString(std::string str);
-extern cudaMat4 glmMat4ToCudaMat4(const glm::mat4 &a);
-extern glm::mat4 cudaMat4ToGlmMat4(const cudaMat4 &a);
 extern glm::mat4 buildTransformationMatrix(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
-extern void printCudaMat4(const cudaMat4 &m);
 extern std::string convertIntToString(int number);
 extern std::istream& safeGetline(std::istream& is, std::string& t); //Thanks to http://stackoverflow.com/a/6089413
 

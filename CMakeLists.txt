@@ -20,6 +20,7 @@ list(APPEND CMAKE_LIBRARY_PATH "${EXTERNAL_LIB_PATH}")
 
 # Find up and set up core dependency libs
 
+find_package(Threads REQUIRED)
 set(GLFW_INCLUDE_DIR "${EXTERNAL}/include")
 set(GLFW_LIBRARY_DIR "${CMAKE_LIBRARY_PATH}")
 find_library(GLFW_LIBRARY "glfw3" HINTS "${GLFW_LIBRARY_DIR}")
@@ -35,13 +36,11 @@ set(CORELIBS
     "${GLFW_LIBRARY}"
     "${OPENGL_LIBRARY}"
     "${GLEW_LIBRARY}"
+    "${CMAKE_THREAD_LIBS_INIT}"
     )
 
 # Enable C++11 for host code
 set(CMAKE_CXX_STANDARD 11)
-
-# Enable CUDA debug info in debug mode builds
-list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g)
 
 # OSX-specific hacks/fixes
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -55,20 +54,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lX11 -lXxf86vm -lXrandr -lXi")
 endif()
 
-# Crucial magic for CUDA linking
-find_package(Threads REQUIRED)
-find_package(CUDA REQUIRED)
-
-set(CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE ON)
-set(CUDA_SEPARABLE_COMPILATION ON)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-endif()
-
 add_subdirectory(src)
 
-cuda_add_executable(${CMAKE_PROJECT_NAME}
+add_executable(${CMAKE_PROJECT_NAME}
     "src/main.hpp"
     "src/main.cpp"
     )

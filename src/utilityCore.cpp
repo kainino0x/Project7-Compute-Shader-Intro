@@ -64,13 +64,6 @@ bool utilityCore::epsilonCheck(float a, float b) {
     }
 }
 
-void utilityCore::printCudaMat4(const cudaMat4 &m) {
-    utilityCore::printVec4(m.x);
-    utilityCore::printVec4(m.y);
-    utilityCore::printVec4(m.z);
-    utilityCore::printVec4(m.w);
-}
-
 glm::mat4 utilityCore::buildTransformationMatrix(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
     glm::mat4 translationMat = glm::translate(glm::mat4(), translation);
     glm::mat4 rotationMat = glm::rotate(glm::mat4(), rotation.x, glm::vec3(1, 0, 0));
@@ -78,25 +71,6 @@ glm::mat4 utilityCore::buildTransformationMatrix(glm::vec3 translation, glm::vec
     rotationMat = rotationMat * glm::rotate(glm::mat4(), rotation.z, glm::vec3(0, 0, 1));
     glm::mat4 scaleMat = glm::scale(glm::mat4(), scale);
     return translationMat * rotationMat * scaleMat;
-}
-
-cudaMat4 utilityCore::glmMat4ToCudaMat4(const glm::mat4 &a) {
-    cudaMat4 m;
-    glm::mat4 aTr = glm::transpose(a);
-    m.x = aTr[0];
-    m.y = aTr[1];
-    m.z = aTr[2];
-    m.w = aTr[3];
-    return m;
-}
-
-glm::mat4 utilityCore::cudaMat4ToGlmMat4(const cudaMat4 &a) {
-    glm::mat4 m;
-    m[0] = a.x;
-    m[1] = a.y;
-    m[2] = a.z;
-    m[3] = a.w;
-    return glm::transpose(m);
 }
 
 std::vector<std::string> utilityCore::tokenizeString(std::string str) {
