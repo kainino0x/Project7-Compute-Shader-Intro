@@ -82,10 +82,6 @@ void initSimulation() {
     glGenBuffers(1, &ssbo_vel);
     glGenBuffers(1, &ssbo_acc);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_pos);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-            N_FOR_VIS * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
-
     GLint bufMask = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
 
     // Randomize planet positions
@@ -100,6 +96,9 @@ void initSimulation() {
 
     // Initialize planet positions on GPU
 
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_pos);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, N_FOR_VIS * sizeof(glm::vec3),
+            NULL, GL_STREAM_COPY);
     glm::vec3 *pos = (glm::vec3 *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
             0, N_FOR_VIS * sizeof(glm::vec3), bufMask);
     for (int i = 0; i < N_FOR_VIS; i++) {
@@ -110,8 +109,8 @@ void initSimulation() {
     // Initialize planet velocities on GPU
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_vel);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-            N_FOR_VIS * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, N_FOR_VIS * sizeof(glm::vec3),
+            NULL, GL_STREAM_COPY);
 
     glm::vec3 *vel = (glm::vec3 *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
             0, N_FOR_VIS * sizeof(glm::vec3), bufMask);
@@ -121,11 +120,15 @@ void initSimulation() {
         float r = glm::length(R) + 0.00001;
         float s = sqrt(G * starMass / r);
         glm::vec3 D = glm::normalize(glm::cross(R / r, glm::vec3(0, 0, 1)));
-        vel[i].x = s * D.x;
-        vel[i].y = s * D.y;
-        vel[i].z = s * D.z;
+        vel[i] = s * D;
     }
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+    // Allocate planet accelerations on GPU
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_acc);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, N_FOR_VIS * sizeof(glm::vec3),
+            NULL, GL_STREAM_COPY);
 
     delete[] hst_pos;
 }

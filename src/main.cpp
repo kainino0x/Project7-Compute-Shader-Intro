@@ -143,7 +143,7 @@ void mainLoop() {
         ss << " fps] " << deviceName;
         glfwSetWindowTitle(window, ss.str().c_str());
 
-        stepSimulation();
+        //stepSimulation();
 
 #if VISUALIZE
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
