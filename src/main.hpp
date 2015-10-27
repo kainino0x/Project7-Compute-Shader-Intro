@@ -16,7 +16,7 @@
 // GL Stuff
 //====================================
 
-GLuint positionLocation = 0;
+GLuint attr_position = 0;
 const char *attributeLocations[] = { "Position" };
 GLuint planetVAO = 0;
 GLuint planetVBO = 0;

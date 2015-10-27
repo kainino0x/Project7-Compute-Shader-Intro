@@ -1,7 +1,9 @@
-#version 330
+#version 430
 
-in vec4 Position;
+layout(std430, binding = 0) buffer _Pos {
+    vec3 Pos[];
+};
 
 void main() {
-    gl_Position = Position;
+    gl_Position = vec4(Pos[gl_VertexID], 1.0);
 }

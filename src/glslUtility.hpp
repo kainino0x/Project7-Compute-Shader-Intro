@@ -11,6 +11,9 @@
 #include <GL/glew.h>
 
 namespace glslUtility {
+char* loadFile(const char *fname, GLint &fSize);
+void printShaderInfoLog(GLint shader);
+void printLinkInfoLog(GLint program);
 GLuint createDefaultProgram(const char *attributeLocations[],
                             GLuint numberOfLocations);
 GLuint createProgram(const char *vertexShaderPath,

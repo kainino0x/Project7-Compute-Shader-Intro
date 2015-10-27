@@ -3,6 +3,8 @@ set(SOURCE_FILES
     "glslUtility.cpp"
     "utilityCore.hpp"
     "utilityCore.cpp"
+    "nbody.hpp"
+    "nbody.cpp"
     )
 
 add_library(src

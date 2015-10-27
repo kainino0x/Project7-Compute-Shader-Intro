@@ -7,6 +7,8 @@
  */
 
 #include "main.hpp"
+#include "nbody.hpp"
+#include "checkGLError.hpp"
 
 // ================
 // Configuration
@@ -14,7 +16,6 @@
 
 #define VISUALIZE 1
 
-const int N_FOR_VIS = 5000;
 const float DT = 0.2f;
 
 /**
@@ -55,7 +56,7 @@ bool init(int argc, char **argv) {
     int width = 1280;
     int height = 720;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -72,9 +73,18 @@ bool init(int argc, char **argv) {
     if (glewInit() != GLEW_OK) {
         return false;
     }
+    glGetError();
 
-    // Initialize drawing state
-    initVAO();
+    // Create and setup VAO
+    glGenVertexArrays(1, &planetVAO);
+    glBindVertexArray(planetVAO);
+    glEnableVertexAttribArray(attr_position);
+    glVertexAttribPointer((GLuint) attr_position, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindVertexArray(0);
+
+    // Initialize n-body simulation
+    initComputeProgs();
+    initSimulation();
 
     projection = glm::perspective(fovy, float(width) / float(height), zNear, zFar);
     glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(0), glm::vec3(0, 0, 1));
@@ -86,53 +96,6 @@ bool init(int argc, char **argv) {
     glEnable(GL_DEPTH_TEST);
 
     return true;
-}
-
-void initVAO() {
-    glm::vec4 vertices[] = {
-        glm::vec4( -1.0, -1.0, 0.0, 0.0 ),
-        glm::vec4( -1.0,  1.0, 0.0, 0.0 ),
-        glm::vec4(  1.0,  1.0, 0.0, 0.0 ),
-        glm::vec4(  1.0, -1.0, 0.0, 0.0 ),
-    };
-
-    GLuint indices[] = { 0, 1, 2, 1, 2, 3 };
-
-    GLfloat *bodies    = new GLfloat[4 * (N_FOR_VIS + 1)];
-    GLuint *bindices   = new GLuint[N_FOR_VIS + 1];
-
-    glm::vec4 ul(-1.0, -1.0, 1.0, 1.0);
-    glm::vec4 lr(1.0, 1.0, 0.0, 0.0);
-
-    for (int i = 0; i < N_FOR_VIS + 1; i++) {
-        bodies[4 * i + 0] = 0.0f;
-        bodies[4 * i + 1] = 0.0f;
-        bodies[4 * i + 2] = 0.0f;
-        bodies[4 * i + 3] = 1.0f;
-        bindices[i] = i;
-    }
-
-
-    glGenVertexArrays(1, &planetVAO);
-    glGenBuffers(1, &planetVBO);
-    glGenBuffers(1, &planetIBO);
-
-    glBindVertexArray(planetVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, planetVBO);
-    glBufferData(GL_ARRAY_BUFFER, 4 * (N_FOR_VIS + 1) * sizeof(GLfloat), bodies, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planetIBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (N_FOR_VIS + 1) * sizeof(GLuint), bindices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(positionLocation);
-    glVertexAttribPointer((GLuint)positionLocation, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glBindVertexArray(0);
-
-
-    delete[] bodies;
-    delete[] bindices;
 }
 
 void initShaders(GLuint * program) {
@@ -180,18 +143,25 @@ void mainLoop() {
         ss << " fps] " << deviceName;
         glfwSetWindowTitle(window, ss.str().c_str());
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        stepSimulation();
+
 #if VISUALIZE
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glPointSize(2.0f);
+
         glUseProgram(program[PROG_PLANET]);
         glBindVertexArray(planetVAO);
-        glPointSize(2.0f);
-        glDrawElements(GL_POINTS, N_FOR_VIS + 1, GL_UNSIGNED_INT, 0);
-        glPointSize(1.0f);
+        GLuint ssbo = getSSBOPosition();
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
+        glDrawArrays(GL_POINTS, 0, N_FOR_VIS);
+
+        glPointSize(1.0f);
         glUseProgram(0);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);
+        checkGLError("visualize");
 #endif
     }
     glfwDestroyWindow(window);
