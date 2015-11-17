@@ -1,3 +1,5 @@
+**WARNING: CURRENTLY DOES NOT QUITE WORK!**
+
 Compute Shader Introduction
 ===========================
 
