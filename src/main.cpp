@@ -143,18 +143,25 @@ void mainLoop() {
         ss << " fps] " << deviceName;
         glfwSetWindowTitle(window, ss.str().c_str());
 
-        //stepSimulation();
+        stepSimulation();
 
 #if VISUALIZE
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPointSize(2.0f);
 
         glUseProgram(program[PROG_PLANET]);
+		checkGLError("gluserogram");
+
+
         glBindVertexArray(planetVAO);
+		checkGLError("bindvertexarray");
+
         GLuint ssbo = getSSBOPosition();
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+		checkGLError("bindbufferbase");
 
         glDrawArrays(GL_POINTS, 0, N_FOR_VIS);
+		checkGLError("gldraw");
 
         glPointSize(1.0f);
         glUseProgram(0);
