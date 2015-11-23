@@ -75,6 +75,10 @@ bool init(int argc, char **argv) {
     }
     glGetError();
 
+	checkGLError("initShaders_before");
+	initShaders(program);
+	checkGLError("initShaders_after");
+
     // Create and setup VAO
     glGenVertexArrays(1, &planetVAO);
     glBindVertexArray(planetVAO);
@@ -83,15 +87,19 @@ bool init(int argc, char **argv) {
     glBindVertexArray(0);
 
     // Initialize n-body simulation
-    initComputeProgs();
-    initSimulation();
+    
+	checkGLError("initComputeProgs_before");
+	initComputeProgs();
+	checkGLError("initComputeProgs_after");
+
+	initSimulation();
 
     projection = glm::perspective(fovy, float(width) / float(height), zNear, zFar);
     glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(0), glm::vec3(0, 0, 1));
 
     projection = projection * view;
 
-    initShaders(program);
+    //initShaders(program);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -135,7 +143,6 @@ void mainLoop() {
             timebase = time;
             frame = 0;
         }
-
         std::ostringstream ss;
         ss << "[";
         ss.precision(1);
@@ -150,18 +157,18 @@ void mainLoop() {
         glPointSize(2.0f);
 
         glUseProgram(program[PROG_PLANET]);
-		checkGLError("gluserogram");
+		//checkGLError("gluserogram");
 
 
         glBindVertexArray(planetVAO);
-		checkGLError("bindvertexarray");
+		//checkGLError("bindvertexarray");
 
         GLuint ssbo = getSSBOPosition();
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
-		checkGLError("bindbufferbase");
+		//checkGLError("bindbufferbase");
 
         glDrawArrays(GL_POINTS, 0, N_FOR_VIS);
-		checkGLError("gldraw");
+		//checkGLError("gldraw");
 
         glPointSize(1.0f);
         glUseProgram(0);

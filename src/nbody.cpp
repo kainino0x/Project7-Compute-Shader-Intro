@@ -57,12 +57,13 @@ static GLuint initComputeProg(const char *path) {
         glslUtility::printLinkInfoLog(prog);
         exit(EXIT_FAILURE);
     }
+	return prog;
 }
 
 void initComputeProgs() {
     prog_nbody_acc    = initComputeProg("shaders/nbody_acc.comp.glsl");
     prog_nbody_velpos = initComputeProg("shaders/nbody_velpos.comp.glsl");
-
+	
     glUseProgram(prog_nbody_acc);
     glUniform1i(unif_numPlanets, N_FOR_VIS);
 
