@@ -75,10 +75,6 @@ bool init(int argc, char **argv) {
     }
     glGetError();
 
-	checkGLError("initShaders_before");
-	initShaders(program);
-	checkGLError("initShaders_after");
-
     // Create and setup VAO
     glGenVertexArrays(1, &planetVAO);
     glBindVertexArray(planetVAO);
@@ -88,9 +84,7 @@ bool init(int argc, char **argv) {
 
     // Initialize n-body simulation
     
-	checkGLError("initComputeProgs_before");
 	initComputeProgs();
-	checkGLError("initComputeProgs_after");
 
 	initSimulation();
 
@@ -99,7 +93,7 @@ bool init(int argc, char **argv) {
 
     projection = projection * view;
 
-    //initShaders(program);
+    initShaders(program);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -157,18 +151,13 @@ void mainLoop() {
         glPointSize(2.0f);
 
         glUseProgram(program[PROG_PLANET]);
-		//checkGLError("gluserogram");
-
 
         glBindVertexArray(planetVAO);
-		//checkGLError("bindvertexarray");
 
         GLuint ssbo = getSSBOPosition();
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
-		//checkGLError("bindbufferbase");
 
         glDrawArrays(GL_POINTS, 0, N_FOR_VIS);
-		//checkGLError("gldraw");
 
         glPointSize(1.0f);
         glUseProgram(0);
