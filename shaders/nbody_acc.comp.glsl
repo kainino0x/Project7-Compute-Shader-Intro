@@ -28,13 +28,16 @@ void main() {
     //     gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID.
     uint idx = gl_GlobalInvocationID.x;
 
+    // star contribution
     vec3 p = Pos[idx];
     float dist = length(p);
-    vec3 acc = G * starMass * p / (dist * dist * dist);
+    vec3 acc = -(G * starMass * p) / (dist * dist * dist + 0.0001); // gotta jitter to avoid NaN
+
+    // planet-planet contributions
     for (int i = 0; i < numPlanets; i++) {
-        vec3 v = Pos[i] - p;
+        vec3 v = p - Pos[i];
         float d = length(v);
-        acc += G * planetMass * v / (d * d * d);
+        acc -= (G * planetMass * v) / (d * d * d + 0.0001); // gotta jitter to avoid NaN
     }
     Acc[idx] = acc;
 }

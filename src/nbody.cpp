@@ -36,6 +36,8 @@ static GLuint initComputeProg(const char *path) {
     const char *cs_str;
     cs_str = glslUtility::loadFile(path, cs_len);
 
+	printf(cs_str);
+
     glShaderSource(cs, 1, &cs_str, &cs_len);
 
     GLint status;
