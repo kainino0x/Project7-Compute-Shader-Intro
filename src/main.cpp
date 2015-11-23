@@ -83,8 +83,10 @@ bool init(int argc, char **argv) {
     glBindVertexArray(0);
 
     // Initialize n-body simulation
-    initComputeProgs();
-    initSimulation();
+    
+	initComputeProgs();
+
+	initSimulation();
 
     projection = glm::perspective(fovy, float(width) / float(height), zNear, zFar);
     glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(0), glm::vec3(0, 0, 1));
@@ -135,7 +137,6 @@ void mainLoop() {
             timebase = time;
             frame = 0;
         }
-
         std::ostringstream ss;
         ss << "[";
         ss.precision(1);
@@ -143,14 +144,16 @@ void mainLoop() {
         ss << " fps] " << deviceName;
         glfwSetWindowTitle(window, ss.str().c_str());
 
-        //stepSimulation();
+        stepSimulation();
 
 #if VISUALIZE
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPointSize(2.0f);
 
         glUseProgram(program[PROG_PLANET]);
+
         glBindVertexArray(planetVAO);
+
         GLuint ssbo = getSSBOPosition();
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
