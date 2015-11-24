@@ -31,13 +31,13 @@ void main() {
     // star contribution
     vec3 p = Pos[idx];
     float dist = length(p);
-    vec3 acc = -(G * starMass * p) / (dist * dist * dist + 0.0001); // gotta jitter to avoid NaN
+    vec3 acc = -(G * starMass * p) / (dist * dist * dist + 0.00001); // gotta jitter to avoid NaN
 
     // planet-planet contributions
     for (int i = 0; i < numPlanets; i++) {
         vec3 v = p - Pos[i];
         float d = length(v);
-        acc -= (G * planetMass * v) / (d * d * d + 0.0001); // gotta jitter to avoid NaN
+        acc -= (G * planetMass * v) / (d * d * d + 0.00001); // gotta jitter to avoid NaN
     }
     Acc[idx] = acc;
 }
