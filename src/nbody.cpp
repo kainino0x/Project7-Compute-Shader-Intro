@@ -133,6 +133,13 @@ void initSimulation() {
     glBufferData(GL_SHADER_STORAGE_BUFFER, N_FOR_VIS * sizeof(glm::vec4),
             NULL, GL_STREAM_COPY);
 
+	glm::vec4 *acc = (glm::vec4 *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
+		0, N_FOR_VIS * sizeof(glm::vec4), bufMask);
+	for (int i = 0; i < N_FOR_VIS; i++) {
+		acc[i] = glm::vec4(0.0);
+	}
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
     delete[] hst_pos;
 }
 
@@ -148,6 +155,10 @@ void stepSimulation() {
     // Dispatch compute shader
     int workGroupCountAcc = (N_FOR_VIS - 1) / WORK_GROUP_SIZE_ACC + 1;
     glDispatchCompute(workGroupCountAcc, 1, 1);
+	// Ensure something like memory coherency.
+	// Otherwise, another invocation of this shader might
+	// launch before this one is done writing values to the ssbo.
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     // Velocity/position update step
 
@@ -161,6 +172,7 @@ void stepSimulation() {
     // Dispatch compute shader
     int workGroupCountVelPos = (N_FOR_VIS - 1) / WORK_GROUP_SIZE_VELPOS + 1;
     glDispatchCompute(workGroupCountVelPos, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 GLuint getSSBOPosition() {
